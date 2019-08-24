@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-samba-config
+data:
+  smb.conf: |
+    [global]
+    server string = Samba Server
+    map to guest = Bad User
+    vfs objects = catia fruit streams_xattr
+    #log level = 2
+    #mdns name = mdns
+    printcap name = /dev/null
+    load printers = no
+    socket options = TCP_NODELAY IPTOS_LOWDELAY SO_RCVBUF=65536 SO_SNDBUF=65536
+    # Time Machine
+    fruit:veto_appledouble = no
+    fruit:encoding = native
+    fruit:metadata = stream
+    # Security
+    server minprotocol = SMB2
+    allow insecure wide links = yes
+    [Time Machine]
+    fruit:time machine = yes
+    path = /data/timemachine
+    writeable = yes
+    guest ok = no
+    browseable = no
+    [Share]
+    path = /data/share
+    wide links = yes
+    guest ok = no
+    writable = yes
+    public = yes
+    [Public]
+    path = /data/public
+    guest ok = yes
+    writable = yes
+    public = yes

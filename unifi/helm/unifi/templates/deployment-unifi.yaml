@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-unifi
+  labels:
+    app: {{ .Release.Name }}-unifi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-unifi
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-unifi
+    spec:
+      containers:
+      - image: {{ .Values.image.name }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: unifi
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 8443
+          protocol: TCP
+        - containerPort: 8880
+          protocol: TCP
+        - containerPort: 8843
+          protocol: TCP
+        - containerPort: 3478
+          protocol: UDP
+        resources: {}
+        volumeMounts:
+        - mountPath: /usr/lib/unifi/data
+          name: unifi-data
+        - mountPath: /usr/lib/unifi/logs
+          name: unifi-log
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      volumes:
+      - name: unifi-data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-unifi-data
+      - name: unifi-log
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-unifi-log

@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-avahi-config
+data:
+  avahi-daemon.conf: |
+    [server]
+    #host-name=foo
+    #domain-name=local
+    #browse-domains=0pointer.de, zeroconf.org
+    use-ipv4=yes
+    use-ipv6=no
+    #allow-interfaces=eth0
+    #deny-interfaces=eth1
+    #check-response-ttl=no
+    #use-iff-running=no
+    enable-dbus=no
+    #disallow-other-stacks=no
+    #allow-point-to-point=no
+    #cache-entries-max=4096
+    #clients-max=4096
+    #objects-per-client-max=1024
+    #entries-per-entry-group-max=32
+    ratelimit-interval-usec=1000000
+    ratelimit-burst=1000
+    [wide-area]
+    enable-wide-area=yes
+    [publish]
+    #disable-publishing=no
+    #disable-user-service-publishing=no
+    #add-service-cookie=no
+    #publish-addresses=yes
+    publish-hinfo=no
+    publish-workstation=no
+    #publish-domain=yes
+    #publish-dns-servers=192.168.50.1, 192.168.50.2
+    publish-resolv-conf-dns-servers=no
+    publish-aaaa-on-ipv4=no
+    #publish-a-on-ipv6=no
+    [reflector]
+    #enable-reflector=no
+    #reflect-ipv=no
+    [rlimits]
+    #rlimit-as=
+    #rlimit-core=0
+    #rlimit-data=8388608
+    #rlimit-fsize=0
+    #rlimit-nofile=768
+    #rlimit-stack=8388608
+    #rlimit-nproc=3
+  smb.service: |
+    <?xml version="1.0" standalone='no'?>
+    <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+    <service-group>
+      <name replace-wildcards="no">store</name>
+      <service>
+        <type>_smb._tcp</type>
+        <host-name>{{ .Values.fqdn }}</host-name>
+        <port>445</port>
+      </service>
+      <service>
+        <type>_device-info._tcp</type>
+        <host-name>{{ .Values.fqdn }}</host-name>
+        <port>0</port>
+        <txt-record>model=TimeCapsule</txt-record>
+      </service>
+      <service>
+        <type>_adisk._tcp</type>
+        <host-name>{{ .Values.fqdn }}</host-name>
+        <txt-record>sys=waMa=0,adVF=0x100</txt-record>
+        <txt-record>dk0=adVN=Time Machine,adVF=0xa2,adVU=FB4D9AA7-BF83-429F-BE1D-4DED3B55BEA2</txt-record>
+      </service>
+    </service-group>

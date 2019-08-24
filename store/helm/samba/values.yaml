@@ -1,0 +1,16 @@
+fqdn: store.home
+
+image:
+  name: samba:4.10.0
+  pullPolicy: Never
+
+volume:
+  timemachine:
+    size: 8Gi
+    hostPath: /volumes/storage/timemachine
+  share:
+    size: 8Gi
+    hostPath: /volumes/storage/share
+  public:
+    size: 8Gi
+    hostPath: /volumes/storage/public

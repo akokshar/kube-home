@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: {{ .Release.Name }}-samba
+  name: {{ .Release.Name }}-samba-timemachine
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.volume.timemachine.size }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-samba
+      use: timemachine
+  storageClassName: ""
+  volumeMode: Filesystem

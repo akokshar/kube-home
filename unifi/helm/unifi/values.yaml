@@ -1,0 +1,11 @@
+image:
+  name: unifi:latest
+  pullPolicy: Never
+
+volume:
+  data:
+    size: 8Gi
+    hostPath: /volumes/storage/kube/unifi/PVs/data
+  logs:
+    size: 8Gi
+    hostPath: /volumes/storage/kube/unifi/PVs/logs

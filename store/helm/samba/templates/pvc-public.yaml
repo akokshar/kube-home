@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: {{ .Release.Name }}-samba
+  name: {{ .Release.Name }}-samba-public
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.volume.public.size }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-samba
+      use: public
+  storageClassName: ""
+  volumeMode: Filesystem

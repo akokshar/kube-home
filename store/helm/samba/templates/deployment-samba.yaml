@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    description: Samba server
+  labels:
+    app: {{ .Release.Name }}-samba
+  name: {{ .Release.Name }}-samba
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-samba
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-samba
+    spec:
+      containers:
+      - args:
+        - -SF
+        - --no-process-group
+        command:
+        - smbd
+        image: {{ .Values.image.name }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: smbd
+        resources: {}
+        securityContext:
+          privileged: false
+          procMount: Default
+        volumeMounts:
+        - mountPath: /etc/samba/smb.conf
+          name: samba-config
+          subPath: smb.conf
+        - mountPath: /var/lib/samba/private
+          name: passdb
+        - mountPath: /data/timemachine
+          name: timemachine
+        - mountPath: /data/share
+          name: share
+        - mountPath: /data/public
+          name: public
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - /bin/bash
+        - -x
+        - -c
+        - for USER in $(ls /tmp/users); do useradd -M -N $USER; PASS=$(cat /tmp/users/$USER);
+          (echo $PASS; echo $PASS) | /usr/bin/smbpasswd -a $USER; done
+        image: {{ .Values.image.name }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: init-users
+        resources: {}
+        volumeMounts:
+        - mountPath: /tmp/users
+          name: users
+        - mountPath: /var/lib/samba/private
+          name: passdb
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: {{ .Release.Name }}-samba-config
+        name: samba-config
+      - emptyDir: {}
+        name: passdb
+      - name: users
+        projected:
+          defaultMode: 420
+          sources:
+          - secret:
+              name: {{ .Release.Name }}-samba-share
+          - secret:
+              name: {{ .Release.Name }}-samba-timemachine
+      - name: timemachine
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-samba-timemachine
+      - name: share
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-samba-share
+      - name: public
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-samba-public

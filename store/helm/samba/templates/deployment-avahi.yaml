@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Release.Name }}-avahi
+  name: {{ .Release.Name }}-avahi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-avahi
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-avahi
+    spec:
+      containers:
+      - command:
+        - avahi-daemon
+        image: {{ .Values.image.name }}
+        imagePullPolicy: {{ .Values.image.pullPolocy }}
+        name: avahi
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/avahi/services/smb.service
+          name: avahi-config
+          subPath: smb.service
+        - mountPath: /etc/avahi/avahi-daemon.conf
+          name: avahi-config
+          subPath: avahi-daemon.conf
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: {{ .Release.Name }}-avahi-config
+        name: avahi-config

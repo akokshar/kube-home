@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    app: {{ .Release.Name }}-unifi
+    use: logs
+  name: {{ .Release.Name }}-unifi-logs
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: {{ .Values.volume.loga.size }}
+  hostPath:
+    path: {{ .Values.volume.loga.hostPath }}
+    type: Directory
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
